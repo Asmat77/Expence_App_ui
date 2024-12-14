@@ -1,6 +1,7 @@
 
 
 import 'package:expence_app/domain/app_constants.dart';
+import 'package:expence_app/ui/homepage.dart';
 import 'package:expence_app/ui/on_boarding/login_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget{
   Widget build(BuildContext context) {
     return MaterialApp(
       title: AppConstants.APP_NAME,
-      home: LogInPage(),
+      home: HomePage(),
     );
   }
 }
