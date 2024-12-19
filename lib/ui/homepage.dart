@@ -1,3 +1,4 @@
+import 'package:expence_app/ui/add_exp_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -438,6 +439,9 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(onPressed: (){
+        Navigator.push(context, MaterialPageRoute(builder: (_)=>AddExpPage()));
+      },child: Icon(Icons.add),),
     );
   }
 }

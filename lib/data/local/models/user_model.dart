@@ -18,6 +18,7 @@ class UserModele {
 
   factory UserModele.fromMap(Map<String, dynamic> map) {
     return UserModele(
+      id: map[DBHelper.USER_COLUMN_ID],
         name: map[DBHelper.USER_COLUMN_NAME],
         password: map[DBHelper.USER_COLUMN_PASSWORD],
         email: map[DBHelper.USER_COLUMN_EMAIL],

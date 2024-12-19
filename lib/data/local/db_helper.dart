@@ -4,6 +4,7 @@ import 'package:expence_app/data/local/models/expense_modele.dart';
 import 'package:expence_app/data/local/models/user_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 ///tables
@@ -25,10 +26,11 @@ class DBHelper {
   /// expense table data
   static final String EXPENSE_TABLE = "expense";
   static final String EXPENSE_COLUMN_ID = "eid";
-  static final String EXPENSE_COLUMN_NAME = "name";
+  static final String EXPENSE_COLUMN_USER_ID = "uid";
+  static final String EXPENSE_COLUMN_TABLE_TYPE = "etype";
   static final String EXPENSE_COLUMN_TITLE = "etitle";
   static final String EXPENSE_COLUMN_DESC = "edesc";
-  static final String EXPENSE_COLUMN_TIME = "ecreated_at";
+  static final String EXPENSE_COLUMN_CREATED_AT = "ecreated_at";
   static final String EXPENSE_COLUMN_AMOUNT = "amount";
   static final String EXPENSE_COLUMN_BALANCE = "balance";
   static final String EXPENSE_COLUMN_CAT_ID = "cat_id";
@@ -48,12 +50,63 @@ class DBHelper {
     var dirPath = await getApplicationDocumentsDirectory();
     var dbPath = join(dirPath.path, "Expense.db");
     return openDatabase(dbPath, version: 1, onCreate: (db, version) {
-      db.execute(
-          "create table $USER_TABLE ( $USER_COLUMN_ID integer primary key autoincrement, $USER_COLUMN_NAME text, $USER_COLUMN_PASSWORD text, $USER_COLUMN_EMAIL text, $USER_COLUMN_MOBILE_NO text, $USER_COLUMN_TIME text)");
-      db.execute(
-          "create table $EXPENSE_TABLE ( $EXPENSE_COLUMN_ID uid integer primary key autoincrement,etype [ 1-> debit text, 2-> credit text],$EXPENSE_COLUMN_TITLE text,$EXPENSE_COLUMN_DESC text,$EXPENSE_COLUMN_TIME text,$EXPENSE_COLUMN_AMOUNT text, $EXPENSE_COLUMN_BALANCE text,$EXPENSE_COLUMN_CAT_ID integer)");
+      print("created data base");
+      db.execute("create table $USER_TABLE ( $USER_COLUMN_ID integer primary key autoincrement, $USER_COLUMN_NAME text, $USER_COLUMN_PASSWORD text, $USER_COLUMN_EMAIL text, $USER_COLUMN_MOBILE_NO text, $USER_COLUMN_TIME text)");
+      db.execute("create table $EXPENSE_TABLE ( $EXPENSE_COLUMN_ID uid integer primary key autoincrement,$EXPENSE_COLUMN_USER_ID integer,$EXPENSE_COLUMN_TABLE_TYPE text,$EXPENSE_COLUMN_TITLE text,$EXPENSE_COLUMN_DESC text,$EXPENSE_COLUMN_CREATED_AT text,$EXPENSE_COLUMN_AMOUNT real, $EXPENSE_COLUMN_BALANCE real,$EXPENSE_COLUMN_CAT_ID integer)");
     });
   }
+
+  Future<bool> checkIfEmailAlreadyExists({required String email})async{
+    var db=await initDB();
+    /*List<Map<String,dynamic>> data= await db.query(USER_TABLE,where:"$USER_COLUMN_EMAIL=$email");
+    return data.isNotEmpty;*/
+    List<Map<String,dynamic>> data= await db.query(USER_TABLE,where:"$USER_COLUMN_EMAIL=?",whereArgs: [email]);
+    return data.isNotEmpty;
+
+  }
+
+  Future<bool> registerUser({required UserModele newUser})async{
+    var db=await initDB();
+    int rowsEffected=await db.insert(USER_TABLE, newUser.toMap());
+    return rowsEffected>0;
+    /*if(!await checkIfEmailAlreadyExists(email: newUser.email)){
+      int rowsEffected=await db.insert(USER_TABLE, newUser.toMap());
+      return rowsEffected>0;
+    }else{
+      return false;
+    }*/
+  }
+
+  Future<bool> authenticateUser({required String email,required String pass})async{
+    var db=await initDB();
+    List<Map<String,dynamic>> mData=await db.query(USER_TABLE,where: "$USER_COLUMN_EMAIL=? AND $USER_COLUMN_PASSWORD=?",whereArgs: [email,pass]);
+
+
+    /// saving user id in prefs
+    if(mData.isNotEmpty){
+      var prefs=await SharedPreferences.getInstance();
+      prefs.setString("userId", mData[0][USER_COLUMN_ID].toString());
+    }
+
+    return mData.isNotEmpty;
+  }
+
+
+  Future<bool> addExpense(ExpenseModele newExpense)async{
+    var db= await initDB();
+
+
+    //newExpense.userId=uId;
+    int rowsEffected=await db.insert(EXPENSE_TABLE, newExpense.toMap());
+    return rowsEffected>0;
+
+
+  }
+
+
+
+
+
 
   ///Add data of user
   /*Future<bool> addUser(
@@ -73,11 +126,11 @@ class DBHelper {
     return rowsEffected > 0;
   }*/
 
-  Future<bool> addUser(UserModele newUser) async {
+ /* Future<bool> addUser(UserModele newUser) async {
     Database db = await initDB();
     int rowsEffected = await db.insert(USER_TABLE, newUser.toMap());
     return rowsEffected > 0;
-  }
+  }*/
 
 
 
@@ -102,11 +155,11 @@ class DBHelper {
   }*/
 
 
-  Future<bool> addExpense(ExpenseModele newExpense) async {
+ /* Future<bool> addExpense(ExpenseModele newExpense) async {
     Database db = await initDB();
     int rowEffected = await db.insert(EXPENSE_TABLE, newExpense.toMap());
     return rowEffected > 0;
-  }
+  }*/
 
 
 
@@ -116,7 +169,7 @@ class DBHelper {
     List<Map<String,dynamic>> allUser=await db.query(USER_TABLE);
     return allUser;
   }*/
-
+/*
   Future<List<UserModele>> fetchUser()async{
     Database db=await initDB();
     List<UserModele> mData=[];
@@ -126,7 +179,7 @@ class DBHelper {
       mData.add(eachUser);
     }
     return mData;
-  }
+  }*/
 
 
 
@@ -137,7 +190,7 @@ class DBHelper {
     return allUser;
   }*/
 
-  Future<List<ExpenseModele>> fetchExpense()async{
+ /* Future<List<ExpenseModele>> fetchExpense()async{
     Database db=await initDB();
     List<ExpenseModele> mData=[];
     List<Map<String,dynamic>> allExpense=await db.query(EXPENSE_TABLE);
@@ -146,7 +199,7 @@ class DBHelper {
       mData.add(eachExp);
     }
     return mData;
-  }
+  }*/
 
 
 
