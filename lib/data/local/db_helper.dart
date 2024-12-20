@@ -43,6 +43,7 @@ class DBHelper {
 
   Future<Database> initDB() async {
     mDB = mDB ?? await openDB();
+    print("open db");
     return mDB!;
   }
 
@@ -52,7 +53,7 @@ class DBHelper {
     return openDatabase(dbPath, version: 1, onCreate: (db, version) {
       print("created data base");
       db.execute("create table $USER_TABLE ( $USER_COLUMN_ID integer primary key autoincrement, $USER_COLUMN_NAME text, $USER_COLUMN_PASSWORD text, $USER_COLUMN_EMAIL text, $USER_COLUMN_MOBILE_NO text, $USER_COLUMN_TIME text)");
-      db.execute("create table $EXPENSE_TABLE ( $EXPENSE_COLUMN_ID uid integer primary key autoincrement,$EXPENSE_COLUMN_USER_ID integer,$EXPENSE_COLUMN_TABLE_TYPE text,$EXPENSE_COLUMN_TITLE text,$EXPENSE_COLUMN_DESC text,$EXPENSE_COLUMN_CREATED_AT text,$EXPENSE_COLUMN_AMOUNT real, $EXPENSE_COLUMN_BALANCE real,$EXPENSE_COLUMN_CAT_ID integer)");
+      db.execute("create table $EXPENSE_TABLE ( $EXPENSE_COLUMN_ID integer primary key autoincrement,$EXPENSE_COLUMN_USER_ID text,$EXPENSE_COLUMN_TABLE_TYPE text,$EXPENSE_COLUMN_TITLE text,$EXPENSE_COLUMN_DESC text,$EXPENSE_COLUMN_CREATED_AT text,$EXPENSE_COLUMN_AMOUNT real, $EXPENSE_COLUMN_BALANCE real,$EXPENSE_COLUMN_CAT_ID integer)");
     });
   }
 
@@ -94,13 +95,8 @@ class DBHelper {
 
   Future<bool> addExpense(ExpenseModele newExpense)async{
     var db= await initDB();
-
-
-    //newExpense.userId=uId;
     int rowsEffected=await db.insert(EXPENSE_TABLE, newExpense.toMap());
     return rowsEffected>0;
-
-
   }
 
 

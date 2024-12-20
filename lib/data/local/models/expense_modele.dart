@@ -20,7 +20,8 @@ class ExpenseModele {
       required this.amount,
       required this.balance,
       required this.cat_id,
-      this.0});
+      this.id
+      });
 
   factory ExpenseModele.fromMap(Map<String, dynamic> map) {
     return ExpenseModele(
